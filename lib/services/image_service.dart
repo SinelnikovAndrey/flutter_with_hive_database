@@ -3,7 +3,7 @@ import 'package:hive_test/models/image_data.dart';
 
 class ImageService {
   static const String _imageBoxName = 'images'; 
-  late Box<ImageData> _imageBox; // Declare a variable for the box
+  late Box<ImageData> _imageBox; 
 
   ImageService() {
     _initHive(); 
@@ -14,62 +14,24 @@ class ImageService {
   }
 
   Future<void> saveImagePath(String imagePath) async {
-    // Ensure _imageBox is initialized
-    await _initHive(); // Call _initHive() if needed 
+    await _initHive(); 
+
+    // Generate a unique key (you can use a timestamp or a counter)
+    final key = DateTime.now().millisecondsSinceEpoch.toString();
 
     final imageData = ImageData(imagePath: imagePath);
-    await _imageBox.put('my_image', imageData);
+    await _imageBox.put(key, imageData); // Save with a unique key
   }
 
-  Future<String?> getImagePath() async {
-    await _initHive(); // Call _initHive() if needed
-
-    final savedImageData = _imageBox.get('my_image');
-    return savedImageData?.imagePath; 
+  Future<List<String>> getAllImagePaths() async {
+    await _initHive();
+    List<String> imagePaths = [];
+    for (var key in _imageBox.keys) {
+      final imageData = _imageBox.get(key);
+      if (imageData != null) {
+        imagePaths.add(imageData.imagePath);
+      }
+    }
+    return imagePaths;
   }
 }
-
-
-// import 'package:hive/hive.dart';
-// import 'package:hive_test/models/image_data.dart';
-
-// class ImageService {
-//   static const String _imageBoxName = 'images'; 
-//   late Box<ImageData> _imageBox; // Declare a variable for the box
-
-//   ImageService() {
-//     _initHive(); // Initialize Hive and open the box in the constructor
-//   }
-
-//   Future<void> _initHive() async {
-//     _imageBox = await Hive.openBox<ImageData>(_imageBoxName);
-//   }
-
-//   Future<void> saveImagePath(String imagePath) async {
-//     final imageData = ImageData(imagePath: imagePath);
-//     await _imageBox.put('my_image', imageData);
-//   }
-
-//   Future<String?> getImagePath() async {
-//     final savedImageData = _imageBox.get('my_image');
-//     return savedImageData?.imagePath; 
-//   }
-// }
-
-// // import 'package:hive/hive.dart';
-// // import 'package:hive_test/models/image_data.dart';
-
-// // class ImageService {
-// //   static const String _imageBoxName = 'images';
-// //   static final Box<ImageData> _imageBox = Hive.box<ImageData>(_imageBoxName);
-
-// //   Future<void> saveImagePath(String imagePath) async {
-// //     final imageData = ImageData(imagePath: imagePath);
-// //     await _imageBox.put('my_image', imageData);
-// //   }
-
-// //   Future<String?> getImagePath() async {
-// //     final savedImageData = _imageBox.get('my_image');
-// //     return savedImageData?.imagePath; 
-// //   }
-// // }
